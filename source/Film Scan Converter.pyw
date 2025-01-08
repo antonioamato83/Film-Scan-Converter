@@ -18,12 +18,12 @@ class GUI:
         # Initialize Variables
         self.photos = []
         self.in_progress = set() # keeps track photos that are in processing when first loading
-        self.photo_process_values = ['RAW', 'Threshold', 'Contours', 'Histogram', 'Full Preview']
+        self.photo_process_values = ['RAW', 'Soglia', 'Contorno', 'Istogramma', 'Anteprima completa']
         self.filetypes = ['TIFF', 'PNG', 'JPG'] # Export File Types
         self.destination_folder = ''
         self.allowable_image_filetypes = [
-            ('RAW files', '*.DNG *.CR2 *.CR3 *.NEF *.ARW *.RAF *.ERF *.NEF *.GPR *.RAW *.CRW'),
-            ('Image files', '*.PNG *.JPG *.JPEG *.BMP *.TIFF *.TIF')
+            ('File RAW', '*.DNG *.CR2 *.CR3 *.NEF *.ARW *.RAF *.ERF *.NEF *.GPR *.RAW *.CRW'),
+            ('File Immagine', '*.PNG *.JPG *.JPEG *.BMP *.TIFF *.TIF')
             ]
         self.header_style = ('Segoe UI', 10, 'normal') # Defines font for section headers
         self.wb_picker = False
@@ -63,16 +63,16 @@ class GUI:
 
         menubar = tk.Menu(master, relief=tk.FLAT)
         self.filemenu = tk.Menu(menubar, tearoff=0)
-        self.filemenu.add_cascade(label='Import...', command=self.import_photos)
-        self.filemenu.add_cascade(label='Save Settings', command=self.save_settings)
+        self.filemenu.add_cascade(label='Importa...', command=self.import_photos)
+        self.filemenu.add_cascade(label='Salva le impostazioni', command=self.save_settings)
         self.filemenu.add_separator()
-        self.filemenu.add_command(label='Exit', command=self.on_closing)
+        self.filemenu.add_command(label='Esci', command=self.on_closing)
         menubar.add_cascade(label='File', menu=self.filemenu)
         self.editmenu = tk.Menu(menubar, tearoff=0)
-        self.editmenu.add_cascade(label='Reset to Default Settings', command=self.reset_settings)
+        self.editmenu.add_cascade(label='Torna alle impostazioni predefinite', command=self.reset_settings)
         self.editmenu.add_separator()
-        self.editmenu.add_cascade(label='Advanced Settings...', command=self.advanced_dialog)
-        menubar.add_cascade(label='Edit', menu=self.editmenu)
+        self.editmenu.add_cascade(label='Impostazioni avanzate...', command=self.advanced_dialog)
+        menubar.add_cascade(label='Modifica', menu=self.editmenu)
         master.config(menu=menubar)
 
         mainFrame = ttk.Frame(master, padding=10)
@@ -87,32 +87,32 @@ class GUI:
         dynamic_scroll_frame = ScrollFrame(self.controlsFrame)
 
         # Importing RAW scans
-        import_title = ttk.Label(text='Select Photo', font=self.header_style, padding=2)
+        import_title = ttk.Label(text='Seleziona foto', font=self.header_style, padding=2)
         importFrame = ttk.LabelFrame(dynamic_scroll_frame.frame, borderwidth=2, labelwidget=import_title, padding=5)
         importFrame.grid(row=0, column=0, sticky='EW')
         importSubFrame1 = ttk.Frame(importFrame)
         importSubFrame1.pack(fill='x')
-        ttk.Label(importSubFrame1, text='RAW File:').pack(side=tk.LEFT)
+        ttk.Label(importSubFrame1, text='File RAW:').pack(side=tk.LEFT)
         self.photoCombo = ttk.Combobox(importSubFrame1, state='readonly')
         self.photoCombo.bind('<<ComboboxSelected>>', self.load_IMG)
         self.photoCombo.pack(side=tk.LEFT, padx=2)
-        self.import_button = ttk.Button(importSubFrame1, text='Import...', command=self.import_photos, width=8)
+        self.import_button = ttk.Button(importSubFrame1, text='Importa...', command=self.import_photos, width=8)
         self.import_button.pack(side=tk.LEFT, padx=2)
         importSubFrame2 = ttk.Frame(importFrame)
         importSubFrame2.pack(fill='x')
-        self.prevButton = ttk.Button(importSubFrame2, text='< Previous Photo', width=20, command=self.previous)
+        self.prevButton = ttk.Button(importSubFrame2, text='< Foto precedente', width=20, command=self.previous)
         self.prevButton.pack(side=tk.LEFT, padx=2, pady=5)
-        self.nextButton = ttk.Button(importSubFrame2, text='Next Photo >', width=20, command=self.next)
+        self.nextButton = ttk.Button(importSubFrame2, text='Foto successiva >', width=20, command=self.next)
         self.nextButton.pack(side=tk.LEFT, padx=2, pady=5)
 
         # Processing Frame
-        processing_title = ttk.Label(text='Processing Settings', font=self.header_style, padding=2)
+        processing_title = ttk.Label(text='Impostazioni di processamento', font=self.header_style, padding=2)
         processingFrame = ttk.LabelFrame(dynamic_scroll_frame.frame, borderwidth=2, labelwidget=processing_title, padding=5)
         processingFrame.grid(row=1, column=0, sticky='EW')
         # Reject Checkbutton to exclude from export
         rejectFrame = ttk.Frame(processingFrame)
         rejectFrame.grid(row=0, column=0, sticky='EW')
-        ttk.Label(rejectFrame, text='Reject Photo:').pack(side=tk.LEFT)
+        ttk.Label(rejectFrame, text='Scarta foto:').pack(side=tk.LEFT)
         self.reject_check = tk.BooleanVar()
         self.reject_check.set(False)
         self.reject_CheckButton = ttk.Checkbutton(rejectFrame, variable=self.reject_check, state='deselected', command=self.set_reject)
@@ -120,35 +120,35 @@ class GUI:
         # Selection of global settings
         self.globFrame = ttk.Frame(processingFrame)
         self.globFrame.grid(row=1, column=0, sticky='EW')
-        ttk.Label(self.globFrame, text='Sync with Global Settings:').pack(side=tk.LEFT)
+        ttk.Label(self.globFrame, text='Sincronizza con le impostazioni generali:').pack(side=tk.LEFT)
         self.glob_check = tk.BooleanVar()
         self.glob_check.set(True)
         ttk.Checkbutton(self.globFrame, variable=self.glob_check, state='selected', command=self.set_global).pack(side=tk.LEFT)
         # Selection of film type
         self.filmFrame = ttk.Frame(processingFrame)
         self.filmFrame.grid(row=3, column=0, sticky='EW')
-        ttk.Label(self.filmFrame, text='Film Type:').pack(side=tk.LEFT)
-        self.filmCombo = ttk.Combobox(self.filmFrame, state='readonly', values=['Black & White Negative', 'Colour Negative', 'Slide (Colour Positive)','Crop Only (RAW)'], width=25)
+        ttk.Label(self.filmFrame, text='Tipo di pellicola:').pack(side=tk.LEFT)
+        self.filmCombo = ttk.Combobox(self.filmFrame, state='readonly', values=['Negativo BN', 'Negativo Colore', 'Diapositiva (Positivo Colore)','Solo ritaglio (RAW)'], width=25)
         self.filmCombo.current(self.global_settings['film_type'])
         self.filmCombo.pack(side=tk.LEFT, padx=2)
         self.filmCombo.bind('<<ComboboxSelected>>', self.set_film_type)
         # Dust removal
         self.dustFrame = ttk.Frame(processingFrame)
         self.dustFrame.grid(row=4, column=0, sticky='EW')
-        ttk.Label(self.dustFrame, text='Remove Dust:').pack(side=tk.LEFT)
+        ttk.Label(self.dustFrame, text='Rimuovi polvere:').pack(side=tk.LEFT)
         self.dust_check = tk.BooleanVar()
         self.dust_check.set(self.global_settings['remove_dust'])
         ttk.Checkbutton(self.dustFrame, variable=self.dust_check, state='deselected', command=self.set_remove_dust).pack(side=tk.LEFT)
 
         # Automatic Cropping Settings
-        controls_title = ttk.Label(text='Automatic Crop & Rotate', font=self.header_style, padding=2)
+        controls_title = ttk.Label(text='Ritaglio automatico e rotazione', font=self.header_style, padding=2)
         self.cropFrame = ttk.LabelFrame(dynamic_scroll_frame.frame, borderwidth=2, labelwidget=controls_title, padding=5)
         self.cropFrame.grid(row=4, column=0, sticky='EW')
         crop_adjustments = ttk.Frame(self.cropFrame)
         crop_adjustments.pack(fill='x')
         crop_adjustments.grid_rowconfigure(1, weight=1)
         crop_adjustments.grid_columnconfigure(3, weight=1)
-        ttk.Label(crop_adjustments, text='Dark Threshold:').grid(row=0, column=0, sticky=tk.E)
+        ttk.Label(crop_adjustments, text='Soglia neri:').grid(row=0, column=0, sticky=tk.E)
         self.dark_threshold = tk.IntVar()
         self.dark_threshold.set(self.global_settings['dark_threshold'])
         self.dark_threshold_scale = ttk.Scale(crop_adjustments, from_=0, to=100, orient=tk.HORIZONTAL, command=lambda x:self.dark_threshold.set(round(float(x))), length=100, value=self.dark_threshold.get())
@@ -158,7 +158,7 @@ class GUI:
         self.dark_threshold_spin.grid(row=0, column=2)
         self.dark_threshold_spin.bind('<Return>', self.set_dark_threshold)
         self.dark_threshold_spin.bind('<FocusOut>', self.set_dark_threshold)
-        ttk.Label(crop_adjustments, text='Light Threshold:').grid(row=1, column=0, sticky=tk.E)
+        ttk.Label(crop_adjustments, text='Soglia chiari:').grid(row=1, column=0, sticky=tk.E)
         self.light_threshold = tk.IntVar()
         self.light_threshold.set(self.global_settings['light_threshold'])
         self.light_threshold_scale = ttk.Scale(crop_adjustments, from_=0, to=100, orient=tk.HORIZONTAL, command=lambda x:self.light_threshold.set(round(float(x))), length=100, value=self.light_threshold.get())
@@ -168,7 +168,7 @@ class GUI:
         self.light_threshold_spin.grid(row=1, column=2)
         self.light_threshold_spin.bind('<Return>', self.set_light_threshold)
         self.light_threshold_spin.bind('<FocusOut>', self.set_light_threshold)
-        ttk.Label(crop_adjustments, text='Border Crop (%):').grid(row=2, column=0, sticky=tk.E)
+        ttk.Label(crop_adjustments, text='Bordo di ritaglio (%):').grid(row=2, column=0, sticky=tk.E)
         self.border_crop = tk.IntVar()
         self.border_crop.set(self.global_settings['border_crop'])
         self.bc_scale = ttk.Scale(crop_adjustments, from_=0, to=20, orient=tk.HORIZONTAL, command=lambda x:self.border_crop.set(round(float(x))), length=100, value=self.border_crop.get())
@@ -178,26 +178,26 @@ class GUI:
         self.bc_spin.grid(row=2, column=2)
         self.bc_spin.bind('<Return>', self.set_border_crop)
         self.bc_spin.bind('<FocusOut>', self.set_border_crop)
-        ttk.Label(crop_adjustments, text='Flip Horizontally:').grid(column=0, row=3, sticky=tk.E)
+        ttk.Label(crop_adjustments, text='Rifletti quadro orizzontale:').grid(column=0, row=3, sticky=tk.E)
         self.flip_check = tk.BooleanVar()
         self.flip_check.set(self.global_settings['flip'])
         ttk.Checkbutton(crop_adjustments, variable=self.flip_check, state='selected', command=self.set_flip).grid(column=1, row=3, sticky=tk.W)
         rotButtons = ttk.Frame(self.cropFrame)
         rotButtons.pack(fill='x')
-        ttk.Button(rotButtons, text='Rotate Counterclockwise', width=22, command=self.rot_counterclockwise).pack(side=tk.LEFT, padx=2, pady=5)
-        ttk.Button(rotButtons, text='Rotate Clockwise', width=22, command=self.rot_clockwise).pack(side=tk.LEFT, padx=2, pady=5)
+        ttk.Button(rotButtons, text='Ruota in senso anti-orario', width=22, command=self.rot_counterclockwise).pack(side=tk.LEFT, padx=2, pady=5)
+        ttk.Button(rotButtons, text='Ruota in senso orario', width=22, command=self.rot_clockwise).pack(side=tk.LEFT, padx=2, pady=5)
 
         # Colour settings
         if getattr(sys, 'frozen', False):
             picker = tk.PhotoImage(file=os.path.join(sys._MEIPASS, 'dropper.png')).subsample(15,15)
         else:
             picker = tk.PhotoImage(file='dropper.png').subsample(15,15)
-        colour_title = ttk.Label(text='Colour Adjustment', font=self.header_style, padding=2)
+        colour_title = ttk.Label(text='Regolazione colore', font=self.header_style, padding=2)
         self.colourFrame = ttk.LabelFrame(dynamic_scroll_frame.frame, borderwidth=2, labelwidget=colour_title, padding=5)
         colour_controls = ttk.Frame(self.colourFrame)
         colour_controls.pack(fill='x', side=tk.LEFT)
-        ttk.Label(colour_controls, text='Film Base Colour:').grid(row=0, column=0, sticky=tk.E)
-        self.base = ttk.Combobox(colour_controls, values=['Auto Detect','Set Manually'], state='readonly', width=12)
+        ttk.Label(colour_controls, text='Colore pellicola:').grid(row=0, column=0, sticky=tk.E)
+        self.base = ttk.Combobox(colour_controls, values=['Automatico','Manuale'], state='readonly', width=12)
         self.base.grid(row=0, column=1, columnspan=2, sticky=tk.W, padx=2)
         self.base.current(self.global_settings['base_detect'])
         self.base.bind('<<ComboboxSelected>>', self.set_base_detect)
@@ -209,13 +209,13 @@ class GUI:
         self.base_pick_button = ttk.Button(colour_controls, image=picker, command=self.set_base)
         self.base_pick_button.image = picker
         self.base_buttons_frame = ttk.Frame(colour_controls)
-        ttk.Button(self.base_buttons_frame, text='Set RGB', command=lambda:self.set_base_rgb(0), width=8).pack(side=tk.LEFT, padx=2, pady=2, anchor='center')
-        ttk.Button(self.base_buttons_frame, text='Import Blank...', command=lambda:self.set_base_rgb(2), width=13).pack(side=tk.LEFT, padx=2, pady=2, anchor='center')
-        ttk.Label(colour_controls, text='White Balance Picker:').grid(row=3, column=0, sticky=tk.E)
+        ttk.Button(self.base_buttons_frame, text='RGB', command=lambda:self.set_base_rgb(0), width=8).pack(side=tk.LEFT, padx=2, pady=2, anchor='center')
+        ttk.Button(self.base_buttons_frame, text='Vuoto...', command=lambda:self.set_base_rgb(2), width=13).pack(side=tk.LEFT, padx=2, pady=2, anchor='center')
+        ttk.Label(colour_controls, text='Imposta bilanciamento del bianco:').grid(row=3, column=0, sticky=tk.E)
         self.wb_picker_button = ttk.Button(colour_controls, image=picker, command=self.pick_wb)
         self.wb_picker_button.grid(row=3, column=1, sticky=tk.W)
         self.wb_picker_button.image = picker
-        ttk.Label(colour_controls, text='Temperature:').grid(row=4, column=0, sticky=tk.E, padx=2, pady=2)
+        ttk.Label(colour_controls, text='Temperatura:').grid(row=4, column=0, sticky=tk.E, padx=2, pady=2)
         self.temp = tk.IntVar()
         self.temp.set(self.global_settings['temp'])
         self.temp_scale = ttk.Scale(colour_controls, from_=-100, to=100, orient=tk.HORIZONTAL, command=lambda x:self.temp.set(round(float(x)/5)*5), length=100, value=self.temp.get())
@@ -226,7 +226,7 @@ class GUI:
         self.temp_spin.grid(row=4, column=2, sticky=tk.W, columnspan=2)
         self.temp_spin.bind('<Return>', self.set_temp)
         self.temp_spin.bind('<FocusOut>', self.set_temp)
-        ttk.Label(colour_controls, text='Tint:').grid(row=5, column=0, sticky=tk.E)
+        ttk.Label(colour_controls, text='Tinta:').grid(row=5, column=0, sticky=tk.E)
         self.tint = tk.IntVar()
         self.tint.set(self.global_settings['tint'])
         self.tint_scale = ttk.Scale(colour_controls, from_=-100, to=100, orient=tk.HORIZONTAL, command=lambda x:self.tint.set(round(float(x)/5)*5), length=100, value=self.tint.get())
@@ -237,7 +237,7 @@ class GUI:
         self.tint_spin.grid(row=5, column=2, sticky=tk.W, columnspan=2)
         self.tint_spin.bind('<Return>', self.set_tint)
         self.tint_spin.bind('<FocusOut>', self.set_tint)
-        ttk.Label(colour_controls, text='Saturation (%):').grid(row=6, column=0, sticky=tk.E)
+        ttk.Label(colour_controls, text='Saturazione (%):').grid(row=6, column=0, sticky=tk.E)
         self.sat = tk.IntVar()
         self.sat.set(self.global_settings['sat'])
         self.sat_scale = ttk.Scale(colour_controls, from_=0, to=200, orient=tk.HORIZONTAL, command=lambda x:self.sat.set(round(float(x)/10)*10), length=100, value=self.sat.get())
@@ -250,14 +250,14 @@ class GUI:
         self.sat_spin.bind('<FocusOut>', self.set_sat)
         
         # Brightness Settings
-        brightness_title = ttk.Label(text='Brightness Adjustment', font=self.header_style, padding=2)
+        brightness_title = ttk.Label(text='Regolazione luminosità', font=self.header_style, padding=2)
         self.exposureFrame = ttk.LabelFrame(dynamic_scroll_frame.frame, borderwidth=2, labelwidget=brightness_title, padding=5)
         self.exposureFrame.grid(row=7, column=0, sticky='EW')
         exposureControls = ttk.Frame(self.exposureFrame)
         exposureControls.pack(fill='x', side=tk.LEFT)
         exposureControls.grid_rowconfigure(6, weight=1)
         exposureControls.grid_columnconfigure(3, weight=1)
-        ttk.Label(exposureControls, text='White Point:').grid(row=2, column=0, sticky=tk.E)
+        ttk.Label(exposureControls, text='Punto di bianco:').grid(row=2, column=0, sticky=tk.E)
         self.white_point = tk.IntVar()
         self.white_point.set(self.global_settings['white_point'])
         self.wpp_scale = ttk.Scale(exposureControls, from_=-100, to=100, orient=tk.HORIZONTAL, command=lambda x:self.white_point.set(round(float(x)/5)*5), length=100, value=self.white_point.get())
@@ -268,7 +268,7 @@ class GUI:
         self.wpp_spin.grid(row=2, column=2, sticky=tk.W)
         self.wpp_spin.bind('<Return>', self.set_white_point)
         self.wpp_spin.bind('<FocusOut>', self.set_white_point)
-        ttk.Label(exposureControls, text='Black Point:').grid(row=3, column=0, sticky=tk.E)
+        ttk.Label(exposureControls, text='Punto di nero:').grid(row=3, column=0, sticky=tk.E)
         self.black_point = tk.IntVar()
         self.black_point.set(self.global_settings['black_point'])
         self.bpp_scale = ttk.Scale(exposureControls, from_=-100, to=100, orient=tk.HORIZONTAL, command=lambda x:self.black_point.set(round(float(x)/5)*5), length=100, value=self.black_point.get())
@@ -290,7 +290,7 @@ class GUI:
         self.gamma_spin.grid(row=4, column=2, sticky=tk.W)
         self.gamma_spin.bind('<Return>', self.set_gamma)
         self.gamma_spin.bind('<FocusOut>', self.set_gamma)
-        ttk.Label(exposureControls, text='Shadows:').grid(row=5, column=0, sticky=tk.E)
+        ttk.Label(exposureControls, text='Ombre:').grid(row=5, column=0, sticky=tk.E)
         self.shadows = tk.IntVar()
         self.shadows.set(self.global_settings['shadows'])
         self.shad_scale = ttk.Scale(exposureControls, from_=-100, to=100, orient=tk.HORIZONTAL, command=lambda x:self.shadows.set(round(float(x)/5)*5), length=100, value=self.shadows.get())
@@ -301,7 +301,7 @@ class GUI:
         self.shad_spin.grid(row=5, column=2, sticky=tk.W)
         self.shad_spin.bind('<Return>', self.set_shadows)
         self.shad_spin.bind('<FocusOut>', self.set_shadows)
-        ttk.Label(exposureControls, text='Highlights:').grid(row=6, column=0, sticky=tk.E)
+        ttk.Label(exposureControls, text='Luci:').grid(row=6, column=0, sticky=tk.E)
         self.highlights = tk.IntVar()
         self.highlights.set(self.global_settings['highlights'])
         self.high_scale = ttk.Scale(exposureControls, from_=-100, to=100, orient=tk.HORIZONTAL, command=lambda x:self.highlights.set(round(float(x)/5)*5), length=100, value=self.highlights.get())
@@ -314,16 +314,16 @@ class GUI:
         self.high_spin.bind('<FocusOut>', self.set_highlights)
 
         # Export photo settings
-        export_title = ttk.Label(text='Export Settings', font=self.header_style, padding=2)
+        export_title = ttk.Label(text='Impostazioni di esportazione', font=self.header_style, padding=2)
         export_frame = ttk.LabelFrame(dynamic_scroll_frame.frame, borderwidth=2, labelwidget=export_title, padding=5)
         export_frame.grid(row=9, column=0, sticky='EW')
         export_settings_frame = ttk.Frame(export_frame)
         export_settings_frame.pack(fill='x')
-        ttk.Label(export_settings_frame, text='Export File Type:', anchor='w').grid(row=0, column=0, sticky=tk.E)
+        ttk.Label(export_settings_frame, text='Estensione file:', anchor='w').grid(row=0, column=0, sticky=tk.E)
         self.filetype_Combo = ttk.Combobox(export_settings_frame, state='readonly', values=self.filetypes, width=15)
         self.filetype_Combo.current(2)
         self.filetype_Combo.grid(row=0, column=1, sticky=tk.W, padx=2, columnspan=2)
-        ttk.Label(export_settings_frame, text='White Frame (%):', anchor='w').grid(row=1, column=0, sticky=tk.E)
+        ttk.Label(export_settings_frame, text='Cornice bianca (%):', anchor='w').grid(row=1, column=0, sticky=tk.E)
         self.frame = tk.IntVar()
         self.frame.set(raw_processing.frame)
         self.frame_scale = ttk.Scale(export_settings_frame, from_=0, to=10, orient=tk.HORIZONTAL, command=lambda x:self.frame.set(round(float(x))), length=100, value=self.frame.get())
@@ -334,18 +334,18 @@ class GUI:
         frame_spin.grid(row=1, column=2, sticky=tk.W, pady=5)
         frame_spin.bind('<Return>', self.set_frame)
         frame_spin.bind('<FocusOut>', self.set_frame)
-        ttk.Label(export_frame, text='Output Destination Folder:', anchor='w').pack(fill = 'x')
+        ttk.Label(export_frame, text='Cartella di destinazione:', anchor='w').pack(fill = 'x')
         self.destination_folder_text = tk.StringVar()
-        self.destination_folder_text.set('No Destination Folder Specified')
+        self.destination_folder_text.set('Nessuna cartella indicata')
         destination_lbl = ttk.Label(export_frame, textvariable=self.destination_folder_text, anchor='w', font=('Segoe UI', 9, 'italic'))
         destination_lbl.pack(fill = 'x')
         destination_lbl.bind('<Configure>', lambda e: destination_lbl.config(wraplength=destination_lbl.winfo_width()))
-        ttk.Button(export_frame, text='Select Folder', command=self.select_folder).pack(side=tk.LEFT, padx=2, pady=5)
-        self.current_photo_button = ttk.Button(export_frame, text='Export Current Photo', command=self.export, state=tk.DISABLED)
+        ttk.Button(export_frame, text='Seleziona cartella', command=self.select_folder).pack(side=tk.LEFT, padx=2, pady=5)
+        self.current_photo_button = ttk.Button(export_frame, text='Esporta la foto selezionata', command=self.export, state=tk.DISABLED)
         self.current_photo_button.pack(side=tk.LEFT, padx=2, pady=5)
-        self.all_photo_button = ttk.Button(export_frame, text='Export All Photos', command=lambda: self.export(len(self.photos)), state=tk.DISABLED)
+        self.all_photo_button = ttk.Button(export_frame, text='Esporta tutte le foto', command=lambda: self.export(len(self.photos)), state=tk.DISABLED)
         self.all_photo_button.pack(side=tk.LEFT, padx=2, pady=5)
-        self.abort_button = ttk.Button(export_frame, text='Abort Export', command=self.abort)
+        self.abort_button = ttk.Button(export_frame, text='Annulla esportazione', command=self.abort)
 
         # Progress Bar
         self.progressFrame = ttk.Frame(dynamic_scroll_frame.frame, padding=2)
@@ -362,7 +362,7 @@ class GUI:
         self.outputFrame = ttk.Frame(mainFrame)
         self.outputFrame.grid_rowconfigure(3, weight=1)
         self.outputFrame.grid_columnconfigure(0, weight=1)
-        self.read_error_lbl = ttk.Label(mainFrame, text='Error: File could not be read', font=('Segoe UI', 20), justify="center", anchor='center')
+        self.read_error_lbl = ttk.Label(mainFrame, text='Errore: il file non può essere letto', font=('Segoe UI', 20), justify="center", anchor='center')
         self.read_error_lbl.bind('<Configure>', lambda e: self.read_error_lbl.config(wraplength=self.read_error_lbl.winfo_width()))
 
         # Process showing
@@ -370,7 +370,7 @@ class GUI:
         process_select_Frame.grid(row=0, column=0, pady=3)
         process_select_Frame.grid_rowconfigure(0, weight=1)
         process_select_Frame.grid_columnconfigure(1, weight=1)
-        ttk.Label(process_select_Frame, text='Show:').grid(row=0, column=0)
+        ttk.Label(process_select_Frame, text='Visualizza:').grid(row=0, column=0)
         self.photo_process_Combo = ttk.Combobox(process_select_Frame, state='readonly', values=self.photo_process_values)
         self.photo_process_Combo.current(0)
         self.photo_process_Combo.bind('<<ComboboxSelected>>', self.update_IMG)
@@ -381,7 +381,7 @@ class GUI:
         self.process_photo.pack()
 
         # Converted Preview
-        ttk.Label(self.outputFrame, text='Preview:', font=self.header_style).grid(row=2, column=0)
+        ttk.Label(self.outputFrame, text='Anteprima:', font=self.header_style).grid(row=2, column=0)
         self.result_photo_frame = tk.Frame(self.outputFrame, padx=3, pady=3)
         self.result_photo_frame.grid(row=3, column=0)
         self.result_photo = ttk.Label(self.result_photo_frame)
@@ -552,7 +552,7 @@ class GUI:
 
         top = tk.Toplevel(root)
         top.transient(root)
-        top.title('Advanced Settings')
+        top.title('Impostazioni avanzate')
         top.grab_set()
         top.bind('<Button>', lambda event: event.widget.focus_set())
         top.resizable(False, False)
@@ -565,18 +565,18 @@ class GUI:
         mainFrame.pack(fill='x')
         firstColumn = ttk.Frame(mainFrame, padding=2)
         firstColumn.grid(row=0, column=0, sticky='n')
-        import_lbl = ttk.Label(top, text='Import:', font=self.header_style, padding=2)
+        import_lbl = ttk.Label(top, text='Importazione:', font=self.header_style, padding=2)
         import_settings = ttk.LabelFrame(firstColumn, borderwidth=2, labelwidget=import_lbl, padding=5)
         import_settings.pack(fill='x', expand=True)
-        export_lbl = ttk.Label(top, text='Export:', font=self.header_style, padding=2)
+        export_lbl = ttk.Label(top, text='Esportazione:', font=self.header_style, padding=2)
         export_settings = ttk.LabelFrame(firstColumn, borderwidth=2, labelwidget=export_lbl, padding=5)
         export_settings.pack(fill='x', expand=True)
         secondColumn = ttk.Frame(mainFrame, padding=2)
         secondColumn.grid(row=0, column=1, sticky='n')
-        process_lbl = ttk.Label(top, text='Processing:', font=self.header_style, padding=2)
+        process_lbl = ttk.Label(top, text='Processamento:', font=self.header_style, padding=2)
         process_settings = ttk.LabelFrame(secondColumn, borderwidth=2, labelwidget=process_lbl, padding=5)
         process_settings.pack(fill='x', expand=True)
-        dust_lbl = ttk.Label(top, text='Dust Removal:', font=self.header_style, padding=2)
+        dust_lbl = ttk.Label(top, text='Rimozione polvere:', font=self.header_style, padding=2)
         dust_settings = ttk.LabelFrame(secondColumn, borderwidth=2, labelwidget=dust_lbl, padding=5)
         dust_settings.pack(fill='x', expand=True)
 
@@ -587,23 +587,23 @@ class GUI:
         allowable_dm_algs = (0, 1, 2, 3, 4, 11, 12)
         dm_algs_list = ('LINEAR','VNG','PPG','AHD','DCB','DHT','AAHD')
         dm_alg.set(dm_algs_list[allowable_dm_algs.index(raw_processing.dm_alg)])
-        ComboLabel(import_settings, 'Demosaicing Algorithm:', dm_algs_list, dm_alg)
+        ComboLabel(import_settings, 'Algoritmo di demosaicizzazione:', dm_algs_list, dm_alg)
 
         colour_space = tk.StringVar()
         cs_list = ('raw','sRGB','Adobe','Wide','ProPhoto','XYZ','ACES','P3D65','Rec2020')
         colour_space.set(cs_list[raw_processing.colour_space])
-        ComboLabel(import_settings, 'RAW Output Colour Space:', cs_list, colour_space)
+        ComboLabel(import_settings, 'Gamma cromatica RAW:', cs_list, colour_space)
 
-        raw_gamma = EntryLabel(import_settings, 'RAW Gamma (Power, Slope):', 0, 8, raw_processing.raw_gamma, tk.DoubleVar, 0.1, width=10)
+        raw_gamma = EntryLabel(import_settings, 'Gamma RAW (Power, Slope):', 0, 8, raw_processing.raw_gamma, tk.DoubleVar, 0.1, width=10)
 
-        exp_shift = EntryLabel(import_settings, 'RAW Exposure Shift:', -2, 3, raw_processing.exp_shift, tk.IntVar)
+        exp_shift = EntryLabel(import_settings, 'Esposizione RAW:', -2, 3, raw_processing.exp_shift, tk.IntVar)
 
         fbdd_nr = tk.StringVar()
         fbdd_nr_list = ('Off','Light','Full')
         fbdd_nr.set(fbdd_nr_list[raw_processing.fbdd_nr])
-        ComboLabel(import_settings, 'FBDD Noise Reduction:', fbdd_nr_list, fbdd_nr)
+        ComboLabel(import_settings, 'Riduzione rumore FBDD:', fbdd_nr_list, fbdd_nr)
 
-        use_camera_wb = CheckLabel(import_settings, 'Use Camera White Balance:', raw_processing.use_camera_wb, set_wb)
+        use_camera_wb = CheckLabel(import_settings, 'Utilizza bilanciamento del bianco della fotocamera:', raw_processing.use_camera_wb, set_wb)
 
         try:
             wb_lbl = 'White Balance Multipliers (' + self.current_photo.colour_desc + '):'
@@ -612,40 +612,40 @@ class GUI:
         wb_mult = EntryLabel(import_settings, wb_lbl, 0, 4, raw_processing.wb_mult, tk.DoubleVar, 0.1, width=4)
         set_wb()
 
-        max_proxy_size = EntryLabel(process_settings, 'Max Proxy Size (W + H):', 500, 20000, raw_processing.max_proxy_size, tk.IntVar, 500)
+        max_proxy_size = EntryLabel(process_settings, 'Dimensione massima proxy (L + A):', 500, 20000, raw_processing.max_proxy_size, tk.IntVar, 500)
 
-        preload = EntryLabel(process_settings, 'Photo Preload Buffer Size:', 0, 20, self.preload, tk.IntVar)
+        preload = EntryLabel(process_settings, 'Dimensione buffer di precaricamento:', 0, 20, self.preload, tk.IntVar)
 
-        ignore_border = EntryLabel(process_settings, 'EQ Ignore Borders % (W, H):', 0, 40, raw_processing.ignore_border, tk.IntVar)
+        ignore_border = EntryLabel(process_settings, 'Ignora bordi durante l\'equalizzazione % (L, A):', 0, 40, raw_processing.ignore_border, tk.IntVar)
 
-        white_point_percentile = EntryLabel(process_settings, 'White Point Percentile:', 70, 100, raw_processing.white_point_percentile, tk.DoubleVar)
+        white_point_percentile = EntryLabel(process_settings, 'Percentile punto di bianco:', 70, 100, raw_processing.white_point_percentile, tk.DoubleVar)
 
-        black_point_percentile = EntryLabel(process_settings, 'Black Point Percentile:', 0, 30, raw_processing.black_point_percentile, tk.DoubleVar)
+        black_point_percentile = EntryLabel(process_settings, 'Percentile punto di nero:', 0, 30, raw_processing.black_point_percentile, tk.DoubleVar)
 
-        dust_threshold = EntryLabel(dust_settings, 'Threshold:', 0, 50, raw_processing.dust_threshold, tk.IntVar)
+        dust_threshold = EntryLabel(dust_settings, 'Soglia:', 0, 50, raw_processing.dust_threshold, tk.IntVar)
 
-        dust_iter = EntryLabel(dust_settings, 'Noise Closing Iterations:', 1, 10, raw_processing.dust_iter, tk.IntVar)
+        dust_iter = EntryLabel(dust_settings, 'Iterazioni:', 1, 10, raw_processing.dust_iter, tk.IntVar)
 
-        max_dust_area = EntryLabel(dust_settings, 'Max Particle Area:', 0, 100, raw_processing.max_dust_area, tk.IntVar)
+        max_dust_area = EntryLabel(dust_settings, 'Area massima:', 0, 100, raw_processing.max_dust_area, tk.IntVar)
 
-        jpg_quality = EntryLabel(export_settings, 'JPEG Quality:', 0, 100, raw_processing.jpg_quality, tk.IntVar, 10)
+        jpg_quality = EntryLabel(export_settings, 'Qualità JPEG:', 0, 100, raw_processing.jpg_quality, tk.IntVar, 10)
 
         tiff_compression = tk.StringVar()
         t_comp_dict = {
-            'No Compression': 1,
+            'Nessuna compressione': 1,
             'Lempel-Ziv & Welch': 5,
             'Adobe Deflate (ZIP)': 8,
             'PackBits': 32773
             }
         tiff_compression.set(list(t_comp_dict.keys())[list(t_comp_dict.values()).index(raw_processing.tiff_compression)])
-        ComboLabel(export_settings, 'TIFF Compression:', list(t_comp_dict), tiff_compression)
+        ComboLabel(export_settings, 'Compressione TIFF:', list(t_comp_dict), tiff_compression)
 
-        max_processors = EntryLabel(export_settings, 'Max Processors Override:', 0, multiprocessing.cpu_count(), self.max_processors_override, tk.IntVar)
+        max_processors = EntryLabel(export_settings, 'Massimo grado di parallelismo:', 0, multiprocessing.cpu_count(), self.max_processors_override, tk.IntVar)
 
         buttonFrame = ttk.Frame(mainFrame)
         buttonFrame.grid(row=1, column=0, columnspan=2, sticky='e')
-        ttk.Button(buttonFrame, text='Cancel', command=quit).pack(side=tk.RIGHT, padx=2, pady=5, anchor='sw')
-        ttk.Button(buttonFrame, text='Save', command=save_settings).pack(side=tk.RIGHT, padx=2, pady=5, anchor='sw')
+        ttk.Button(buttonFrame, text='Annulla', command=quit).pack(side=tk.RIGHT, padx=2, pady=5, anchor='sw')
+        ttk.Button(buttonFrame, text='Salva', command=save_settings).pack(side=tk.RIGHT, padx=2, pady=5, anchor='sw')
 
         # Centres pop-up window over root window
         top.update_idletasks()
@@ -684,33 +684,33 @@ class GUI:
         if hasattr(self, 'export_thread') and self.export_thread.is_alive():
             return # don't run if the export is running
             
-        filenames = filedialog.askopenfilenames(title='Select RAW File(s)', filetypes=self.allowable_image_filetypes) # show an 'Open' dialog box and return the path to the selected files
+        filenames = filedialog.askopenfilenames(title='Seleziona file RAW', filetypes=self.allowable_image_filetypes) # show an 'Open' dialog box and return the path to the selected files
         if len(filenames) == 0:
             return # if user clicks 'cancel', abort operation
         
-        self.show_progress('Initializing import...') # display progress opening
+        self.show_progress('Avvio importazione...') # display progress opening
         self.import_button.configure(state=tk.DISABLED)
-        self.filemenu.entryconfigure('Import...', state=tk.DISABLED)
+        self.filemenu.entryconfigure('Importa...', state=tk.DISABLED)
         
         total = len(filenames)
         self.photos = []
         photo_names = []
         
-        self.update_progress(20, 'Initializing ' + str(total) + ' photos...')
+        self.update_progress(20, 'Importazione di ' + str(total) + ' foto...')
         for i, filename in enumerate(filenames):
             photo = raw_processing(filename)
             self.photos.append(photo)
             photo_names.append(str(i + 1) + '. ' + str(photo))
         
-        self.update_progress(80, 'Configuring GUI...')
+        self.update_progress(80, 'Configurazione interfaccia grafica...')
         self.photoCombo.configure(values=photo_names) # configures dropdown to include list of photos
         self.photoCombo.current(0) # select the first photo to display
 
-        self.update_progress(90, 'Loading photo...')
+        self.update_progress(90, 'Caricamento foto...')
         self.load_IMG() # configure GUI to display the first photo
         self.update_progress(99)
         self.import_button.configure(state=tk.NORMAL)
-        self.filemenu.entryconfigure('Import...', state=tk.NORMAL)
+        self.filemenu.entryconfigure('Importa...', state=tk.NORMAL)
         self.update_UI()
         if self.glob_check.get() and self.global_settings != self.default_settings: # check if global settings are different from default on import
             self.unsaved = True # if it is the default, then it doesn't need to be saved
@@ -955,7 +955,7 @@ class GUI:
         if self.glob_check.get():
             affected = sum([photo.use_global_settings for photo in self.photos]) # calculate the total number of photos using global settings
             if affected > 1:
-                if not messagebox.askyesno('Reset to Default Settings','You are about to globally reset ' + str(affected) + ' photos\'s settings.\nDo you wish to continue?', icon='warning'):
+                if not messagebox.askyesno('Torna alle impostazioni predefinite','Stai per applicare le impostazioni predefinite a ' + str(affected) + ' foto.\nDesideri continuare?', icon='warning'):
                     return
             self.global_settings = self.default_settings.copy() # reset global settings
             self.changed_global_settings()
@@ -996,13 +996,13 @@ class GUI:
             self.globFrame.grid_forget()
             self.filmFrame.grid_forget()
             self.dustFrame.grid_forget()
-            self.editmenu.entryconfigure('Reset to Default Settings', state=tk.DISABLED)
+            self.editmenu.entryconfigure('Torna alle impostazioni predefinite', state=tk.DISABLED)
         else:
             self.cropFrame.grid(row=4, column=0, sticky='EW')
             self.globFrame.grid(row=1, column=0, sticky='EW')
             self.filmFrame.grid(row=3, column=0, sticky='EW')
             self.dustFrame.grid(row=4, column=0, sticky='EW')
-            self.editmenu.entryconfigure('Reset to Default Settings', state=tk.NORMAL)
+            self.editmenu.entryconfigure('Torna alle impostazioni predefinite', state=tk.NORMAL)
         
         if self.reject_check.get() or len(self.photos) == 0:
             self.current_photo_button.configure(state=tk.DISABLED)
@@ -1292,7 +1292,7 @@ class GUI:
                             raise Exception
                         raw_img = raw_img[:,:,::-1] # converts BGR to RGB
                     except: # If fails again, generate error message
-                        messagebox.showerror('Error: File Read Error','The selected image could not be read.')
+                        messagebox.showerror('Errore nella lettura del file','La foto scelta non può essere letta.')
                         return
                 brightness = np.sum(raw_img.astype(np.uint16), 2)
                 sample = np.percentile(brightness, 90) # take sample at 90th percentile brightest pixel
@@ -1520,7 +1520,7 @@ class GUI:
             if self.ask_save_settings() == None: # if "Cancel" is pressed, do nothing
                 return
         if hasattr(self, 'export_thread') and self.export_thread.is_alive(): # check if the export thread is still alive
-            if messagebox.askyesno(title='Export in Progress', icon='warning', message='Export is still in progress. Do you really want to quit?', default='no'):
+            if messagebox.askyesno(title='Esportazione in corso', icon='warning', message='L\'esportazione è ancora in corso. Vuoi uscire ugualmente?', default='no'):
                 try:
                     self.pool.terminate()
                 except:
@@ -1532,7 +1532,7 @@ class GUI:
     def ask_save_settings(self):
         # dialog to ask if settings are to be saved. If yes, saves settings and returns True. No returns False. Cancel returns None.
         if self.unsaved:
-            result = messagebox.askyesnocancel('Unsaved Changes', 'Do you want to save the changes you made to this batch of photos?')
+            result = messagebox.askyesnocancel('Modifiche non salvate', 'Vuoi salvare le modifiche che hai effettuato su questo gruppo di foto?')
         else:
             return False
         if result:
